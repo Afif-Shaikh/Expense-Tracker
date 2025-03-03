@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Expense Tracker</title>
+    <link rel="stylesheet" href="../css/Dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Expense Tracker Dashboard</h1>
+            <div class="header-buttons">
+                <button class="add-btn" onclick="location.href='Add_Expense.html'">Add Expense</button>
+				<button class="add-btn" onclick="location.href='Add_Income.html'">Add Income</button>
+                
+            </div>
+        </header>
+
+        <div class="dashboard-summary">
+            <div class="summary-card total-income">
+                <h2>Total Income</h2>
+                <p id="total-income">₹0.00</p>
+            </div>
+            <div class="summary-card total-expenses">
+                <h2>Total Expenses</h2>
+                <p id="total-expenses">₹0.00</p>
+            </div>
+            <div class="summary-card current-balance">
+                <h2>Current Balance</h2>
+                <p id="current-balance">₹0.00</p>
+            </div>
+        </div>
+
+        <div class="recent-transactions">
+            <h2>Recent Transactions</h2>
+            <ul id="transactions-list">
+                <!-- Transactions will be listed here dynamically -->
+            </ul>
+            <button class="view-more-btn">View All Transactions</button>
+        </div>
+
+        <div class="spending-chart">
+            <h2>Spending Overview</h2>
+            <div id="chart-container">
+                <!-- Optional: You can add a chart here using libraries like Chart.js -->
+                <p>Chart will go here</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/Dashboard.js"></script>
+</body>
+</html>

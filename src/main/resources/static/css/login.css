@@ -1,0 +1,113 @@
+/* Login page styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    font-weight: 600;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #4CAF50;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+    color: #388e3c;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    color: #333;
+    background-color: #fafafa;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+input[type="password"] {
+    font-family: 'Roboto', sans-serif;
+}
+
+input:focus {
+    border: 1px solid #4CAF50;
+    outline: none;
+    box-shadow: 0 0 6px rgba(72, 191, 47, 0.5);
+}
+
+button.save-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button.save-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+button.save-btn:active {
+    transform: scale(0.98);
+}
+
+button.save-btn:focus {
+    outline: none;
+}
+
+button.save-btn:disabled {
+    background-color: #bbb;
+    cursor: not-allowed;
+}

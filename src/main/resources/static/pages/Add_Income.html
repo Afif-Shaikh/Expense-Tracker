@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Income - Expense Tracker</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Add Income</h1>
+            <a href="Dashboard.html" class="back-btn">Back to Dashboard</a>
+        </header>
+
+        <form id="add-income-form" class="form">
+            <div class="form-group">
+                <label for="income-name">Income Source</label>
+                <input type="text" id="income-name" name="income-name" required placeholder="E.g., Salary, Business">
+            </div>
+            
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="income-amount" name="income-amount" required placeholder="Enter Amount" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="income-date">Date</label>
+                <input type="date" id="income-date" name="income-date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="income-category">Category</label>
+                <select id="income-category" name="income-category" required>
+                    <option value="Salary">Salary</option>
+                    <option value="Business">Business</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Add Income</button>
+        </form>
+    </div>
+
+    <script src="../js/Add_Income.js"></script>
+</body>
+</html>

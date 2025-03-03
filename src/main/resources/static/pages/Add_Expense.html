@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div class="container">
+        <header>
+            <h1>Add Expense</h1>
+            <a href="Dashboard.html" class="back-btn">Back to Dashboard</a>
+            
+        </header>
+
+        <form id="add-expense-form" class="form">
+            <div class="form-group">
+                <label for="expense-name">Expense Name:</label>
+                <input type="text" id="expense-name" name="expense-name" placeholder="e.g. Groceries" required>
+            </div>
+            <div class="form-group">
+                <label for="expense-amount">Amount (₹):</label>
+                <input type="number" id="expense-amount" name="expense-amount" placeholder="Amount" required step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="expense-date">Date:</label>
+                <input type="date" id="expense-date" name="expense-date" required>
+            </div>
+            <div class="form-group">
+                <label for="expense-category">Category:</label>
+                <select id="expense-category" name="expense-category" required>
+                    <option value="food">Food</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="bills">Bills</option>
+                    <option value="transportation">Transportation</option>
+                    <option value="others">Others</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Expense Type:</label>
+                <select id="type" name="type" required>
+                    <option value="food">Needs</option>
+                    <option value="entertainment">Wants</option>
+                    <option value="bills">Investments</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="other-details">Comments:</label>
+                <textarea id="other-details" name="other-details" placeholder="Additional notes (optional)"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Add Expense</button>
+        </form>
+    </div>
+
+    <!-- <div class="container">
+        <h1>Add New Expense</h1>
+        <form id="expense-form">
+            <div class="form-group">
+                <label for="expense-name">Expense Name:</label>
+                <input type="text" id="expense-name" name="expense-name" placeholder="e.g. Groceries" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount (₹):</label>
+                <input type="number" id="amount" name="amount" placeholder="Amount" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category" name="category" required>
+                    <option value="food">Food</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="bills">Bills</option>
+                    <option value="transportation">Transportation</option>
+                    <option value="others">Others</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Expense Type:</label>
+                <select id="type" name="type" required>
+                    <option value="food">Needs</option>
+                    <option value="entertainment">Wants</option>
+                    <option value="bills">Investments</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="other-details">Comments:</label>
+                <textarea id="other-details" name="other-details" placeholder="Additional notes (optional)"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Add Expense</button>
+        </form>
+    </div> -->
+
+    <script src="../js/Add_Expense.js"></script>
+</body>
+</html>
