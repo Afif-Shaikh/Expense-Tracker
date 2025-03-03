@@ -1,36 +1,61 @@
-// Example data for dashboard display
-const transactions = [
-    { name: "Groceries", amount: 50.00, date: "2025-02-01", category: "Food" },
-    { name: "Salary", amount: 2000.00, date: "2025-02-01", category: "Income" },
-    { name: "Electricity Bill", amount: 100.00, date: "2025-02-02", category: "Bills" },
-    { name: "Movie Night", amount: 30.00, date: "2025-02-03", category: "Entertainment" }
-];
-
-let totalIncome = 0;
-let totalExpenses = 0;
-let currentBalance = 0;
-
-// Calculate totals for income and expenses
-transactions.forEach(transaction => {
-    if (transaction.category === "Income") {
-        totalIncome += transaction.amount;
-    } else {
-        totalExpenses += transaction.amount;
-    }
+document.addEventListener("DOMContentLoaded", function () {
+    fetchExpenses();
+    fetchIncome();
 });
 
-// Calculate balance
-currentBalance = totalIncome - totalExpenses;
+function fetchExpenses() {
+    fetch("http://localhost:8080/api/expense/getExpense")
+    .then(response => response.json())
+    .then(expenses => {
+        let expenseList = document.getElementById("transactions-list");
+        expenseList.innerHTML = "";
 
-// Display totals on the dashboard
-document.getElementById("total-income").textContent = `₹${totalIncome.toFixed(2)}`;
-document.getElementById("total-expenses").textContent = `₹${totalExpenses.toFixed(2)}`;
-document.getElementById("current-balance").textContent = `₹${currentBalance.toFixed(2)}`;
+        expenses.forEach(expense => {
+            let listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>${expense.name}</strong> - ₹${expense.amount} (${expense.category}) on ${expense.date}`;
+            expenseList.appendChild(listItem);
+        });
 
-// Display recent transactions (limit to 3 for now)
-const transactionsList = document.getElementById("transactions-list");
-transactions.slice(0, 3).forEach(transaction => {
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${transaction.name}</strong> - ₹${transaction.amount.toFixed(2)} <span>${transaction.date}</span>`;
-    transactionsList.appendChild(li);
-});
+        updateDashboard();
+    })
+    .catch(error => console.error("Error fetching expenses:", error));
+}
+
+function fetchIncome() {
+    fetch("http://localhost:8080/api/income/getIncome")
+    .then(response => response.json())
+    .then(income => {
+        let incomeList = document.getElementById("transactions-list");
+        
+        income.forEach(entry => {
+            let listItem = document.createElement("li");
+            listItem.innerHTML = `<strong>${entry.name}</strong> - ₹${entry.amount} (${entry.category}) on ${entry.date}`;
+            incomeList.appendChild(listItem);
+        });
+
+        updateDashboard();
+    })
+    .catch(error => console.error("Error fetching income:", error));
+}
+
+function updateDashboard() {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    fetch("http://localhost:8080/api/income/getIncome")
+    .then(response => response.json())
+    .then(income => {
+        income.forEach(entry => totalIncome += entry.amount);
+        document.getElementById("total-income").textContent = `₹${totalIncome.toFixed(2)}`;
+    });
+
+    fetch("http://localhost:8080/api/expense/getExpense")
+    .then(response => response.json())
+    .then(expenses => {
+        expenses.forEach(expense => totalExpenses += expense.amount);
+        document.getElementById("total-expenses").textContent = `₹${totalExpenses.toFixed(2)}`;
+
+        let currentBalance = totalIncome - totalExpenses;
+        document.getElementById("current-balance").textContent = `₹${currentBalance.toFixed(2)}`;
+    });
+}

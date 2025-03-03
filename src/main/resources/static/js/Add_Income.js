@@ -1,44 +1,48 @@
 // Set today's date as default in the date field
 document.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0];
 
     const incomeDateInput = document.getElementById("income-date");
     if (incomeDateInput) {
-        incomeDateInput.value = today; // Set default value if element exists
+        incomeDateInput.value = today;
     }
 });
 
 document.getElementById("add-income-form").addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
-    const incomeName = document.getElementById("income-name").value;
-	const incomeAmount = parseFloat(document.getElementById("income-amount").value);
-    const incomeDate = document.getElementById("income-date").value;
-    const incomeCategory = document.getElementById("income-category").value;
-	const today = new Date().toISOString().split("T")[0];
-	
-	if (incomeName.length < 3 || !incomeDate || incomeDate > today || !incomeCategory) {
-	       alert("Please fill out all required fields correctly.");
-	       return;
-	   }
-
-	   if (isNaN(incomeAmount) || incomeAmount <= 0) {
-	       alert("Enter a valid positive amount.");
-	       return;
-	   }
-
-    // Create a new income object (you can save it to your backend or local storage)
     const incomeData = {
-        name: incomeName,
-        amount: incomeAmount,
-        date: incomeDate,
-        category: incomeCategory,
+        name: document.getElementById("income-name").value.trim(),
+        amount: parseFloat(document.getElementById("income-amount").value),
+        date: document.getElementById("income-date").value,
+        category: document.getElementById("income-category").value
     };
 
-    // Display or process the income data (you can update the dashboard or other views here)
-    console.log("New Income Added:", incomeData);
+    const today = new Date().toISOString().split("T")[0];
 
-    // Optional: Show success message or redirect user
-    alert("Income added successfully!");
-    window.location.href = "Dashboard.html"; // Redirect back to dashboard (or stay on the page)
+    // Validations
+    if (incomeData.name.length < 3 || !incomeData.date || incomeData.date > today || !incomeData.category) {
+        alert("Please fill out all required fields correctly.");
+        return;
+    }
+
+    if (isNaN(incomeData.amount) || incomeData.amount <= 0) {
+        alert("Enter a valid positive amount.");
+        return;
+    }
+
+    console.log("Sending Income Data:", incomeData);
+
+    // Send data to backend
+    fetch("http://localhost:8080/api/income/addIncome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(incomeData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Income added successfully!");
+        window.location.href = "Dashboard.html";
+    })
+    .catch(error => console.error("Error:", error));
 });
