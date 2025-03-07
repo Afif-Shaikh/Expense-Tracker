@@ -35,6 +35,16 @@ h1 {
     font-weight: 500;
 }
 
+
+.back-btn {
+    text-decoration: none;
+    color: #4CAF50;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+
 .add-btn {
     background-color: #4CAF50;
     color: white;
