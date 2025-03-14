@@ -1,4 +1,4 @@
-// Set today's date as default in the date field
+/*// Set today's date as default in the date field
 document.addEventListener("DOMContentLoaded", function () {
     const today = new Date().toISOString().split("T")[0];
 
@@ -6,43 +6,43 @@ document.addEventListener("DOMContentLoaded", function () {
     if (incomeDateInput) {
         incomeDateInput.value = today;
     }
-});
+});*/
+document.addEventListener("DOMContentLoaded", function () {
+    const userId = localStorage.getItem("userId"); // Get logged-in user ID
 
-document.getElementById("add-income-form").addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    const incomeData = {
-        name: document.getElementById("income-name").value.trim(),
-        amount: parseFloat(document.getElementById("income-amount").value),
-        date: document.getElementById("income-date").value,
-        category: document.getElementById("income-category").value
-    };
-
-    const today = new Date().toISOString().split("T")[0];
-
-    // Validations
-    if (incomeData.name.length < 3 || !incomeData.date || incomeData.date > today || !incomeData.category) {
-        alert("Please fill out all required fields correctly.");
-        return;
+    if (!userId) {
+        alert("User not logged in! Redirecting to login.");
+        window.location.href = "login.html";
     }
 
-    if (isNaN(incomeData.amount) || incomeData.amount <= 0) {
-        alert("Enter a valid positive amount.");
-        return;
-    }
+    document.getElementById("addIncomeForm").addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    console.log("Sending Income Data:", incomeData);
+        const name = document.getElementById("name").value;
+        const amount = parseFloat(document.getElementById("amount").value);
+        const category = document.getElementById("category").value;
+        const date = document.getElementById("date").value || new Date().toISOString().split("T")[0]; // Default to current date
 
-    // Send data to backend
-    fetch("http://localhost:8080/api/income/addIncome", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(incomeData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Income added successfully!");
-        window.location.href = "Dashboard.html";
-    })
-    .catch(error => console.error("Error:", error));
+        if (!name || !amount || !category) {
+            alert("Please fill all mandatory fields.");
+            return;
+        }
+
+        if (amount <= 0) {
+            alert("Amount must be a positive value.");
+            return;
+        }
+
+        fetch(`/api/income/addIncome/${userId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, amount, category, date })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Income added successfully!");
+            window.location.reload();
+        })
+        .catch(error => console.error("Error:", error));
+    });
 });

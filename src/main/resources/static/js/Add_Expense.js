@@ -1,4 +1,4 @@
-// Set today's date as default in the date field
+/*// Set today's date as default in the date field
 document.addEventListener("DOMContentLoaded", function () {
     const today = new Date().toISOString().split("T")[0];
 
@@ -6,45 +6,46 @@ document.addEventListener("DOMContentLoaded", function () {
     if (expenseDateInput) {
         expenseDateInput.value = today;
     }
-});
+});*/
 
-document.getElementById('add-expense-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
+    const userId = localStorage.getItem("userId"); // Get logged-in user ID
 
-    const expenseData = {
-        name: document.getElementById('expense-name').value.trim(),
-        amount: parseFloat(document.getElementById('expense-amount').value),
-        date: document.getElementById('expense-date').value,
-        category: document.getElementById('expense-category').value,
-        type: document.getElementById('type').value,
-        comments: document.getElementById('other-details').value.trim()
-    };
-
-    const today = new Date().toISOString().split("T")[0];
-
-    // Validations
-    if (expenseData.name.length < 3 || !expenseData.date || expenseData.date > today || !expenseData.category || !expenseData.type) {
-        alert("Please fill out all required fields correctly.");
-        return;
+    if (!userId) {
+        alert("User not logged in! Redirecting to login.");
+        window.location.href = "login.html";
     }
 
-    if (isNaN(expenseData.amount) || expenseData.amount <= 0) {
-        alert("Enter a valid positive amount.");
-        return;
-    }
+    document.getElementById("addExpenseForm").addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    console.log("Sending Expense Data:", expenseData);
+        const name = document.getElementById("name").value;
+        const amount = parseFloat(document.getElementById("amount").value);
+        const category = document.getElementById("category").value;
+        const type = document.getElementById("type").value;
+        const date = document.getElementById("date").value || new Date().toISOString().split("T")[0]; // Default to current date
+        const comments = document.getElementById("comments").value;
 
-    // Send data to backend
-    fetch('http://localhost:8080/api/expense/addExpense', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(expenseData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert('Expense added successfully!');
-        window.location.href = "Dashboard.html";
-    })
-    .catch(error => console.error('Error:', error));
+        if (!name || !amount || !category || !type) {
+            alert("Please fill all mandatory fields.");
+            return;
+        }
+
+        if (amount <= 0) {
+            alert("Amount must be a positive value.");
+            return;
+        }
+
+        fetch(`/api/expense/addExpense/${userId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, amount, category, type, date, comments })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Expense added successfully!");
+            window.location.reload();
+        })
+        .catch(error => console.error("Error:", error));
+    });
 });
