@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Expense Tracker</title>
     <link rel="stylesheet" href="css/Dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -44,8 +45,14 @@
         <div class="spending-chart">
             <h2>Spending Overview</h2>
             <div id="chart-container">
+            <canvas id="category-chart"></canvas>
+<canvas id="time-chart"></canvas>
+<canvas id="income-chart"></canvas>
+            
                 <!-- Optional: You can add a chart here using libraries like Chart.js -->
                 <p>Chart will go here</p>
+                <script src="charts.js"></script>
+                
             </div>
         </div>
     </div>

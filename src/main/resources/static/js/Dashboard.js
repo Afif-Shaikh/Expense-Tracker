@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function fetchExpenses() {
-    fetch("http://localhost:8080/api/expense/getExpense")
+    fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense")
     .then(response => response.json())
     .then(expenses => {
         let expenseList = document.getElementById("transactions-list");
@@ -22,7 +22,7 @@ function fetchExpenses() {
 }
 
 function fetchIncome() {
-    fetch("http://localhost:8080/api/income/getIncome")
+    fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome")
     .then(response => response.json())
     .then(income => {
         let incomeList = document.getElementById("transactions-list");
@@ -42,14 +42,14 @@ function updateDashboard() {
     let totalIncome = 0;
     let totalExpenses = 0;
 
-    fetch("http://localhost:8080/api/income/getIncome")
+    fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome")
     .then(response => response.json())
     .then(income => {
         income.forEach(entry => totalIncome += entry.amount);
         document.getElementById("total-income").textContent = `₹${totalIncome.toFixed(2)}`;
     });
 
-    fetch("http://localhost:8080/api/expense/getExpense")
+    fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense")
     .then(response => response.json())
     .then(expenses => {
         expenses.forEach(expense => totalExpenses += expense.amount);

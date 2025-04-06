@@ -1,3 +1,9 @@
+document.addEventListener("DOMContentLoaded", function () {
+    if (!document.getElementById("category-chart")) {
+        console.warn("Charts not loaded: No canvas elements found.");
+        return; // Prevent execution if charts are not on this page
+    }
+
 // Sample transaction data (replace with dynamic data in real app)
 const transactions = [
     { name: "Groceries", amount: 50.00, date: "2025-02-01", category: "Food" },
@@ -238,3 +244,4 @@ document.getElementById('income-category-filter').addEventListener('change', (e)
     incomeChart.data.datasets[0].data = incomeFilteredAmounts;
     incomeChart.update();
 });
+})

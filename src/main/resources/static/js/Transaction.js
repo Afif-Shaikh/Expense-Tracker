@@ -11,30 +11,36 @@ function fetchTransactions() {
 
     // Fetch Expenses and Income, then update UI only once
     Promise.all([
-        fetch("http://localhost:8080/api/expense/getExpense").then(response => response.json()),
-        fetch("http://localhost:8080/api/income/getIncome").then(response => response.json())
+        fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense").then(response => response.json()),
+        fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome").then(response => response.json())
     ])
     .then(([expenses, income]) => {
+        // Adding expenses to transactions
         expenses.forEach(expense => {
-            transactions.push({
-                id: expense.id,
-                name: expense.name,
-                amount: expense.amount,
-                date: expense.date,
-                category: expense.category,
-                type: "expense"
-            });
+            if (!transactions.some(transaction => transaction.id === expense.id && transaction.type === "expense")) {
+                transactions.push({
+                    id: expense.id,
+                    name: expense.name,
+                    amount: expense.amount,
+                    date: expense.date,
+                    category: expense.category,
+                    type: "expense"
+                });
+            }
         });
 
+        // Adding income to transactions
         income.forEach(entry => {
-            transactions.push({
-                id: entry.id,
-                name: entry.name,
-                amount: entry.amount,
-                date: entry.date,
-                category: entry.category,
-                type: "income"
-            });
+            if (!transactions.some(transaction => transaction.id === entry.id && transaction.type === "income")) {
+                transactions.push({
+                    id: entry.id,
+                    name: entry.name,
+                    amount: entry.amount,
+                    date: entry.date,
+                    category: entry.category,
+                    type: "income"
+                });
+            }
         });
 
         renderTransactions(); // Now render only once
@@ -49,7 +55,6 @@ function renderTransactions() {
     transactionsList.innerHTML = ""; // Clear previous entries
 
     // Ensure transactions are sorted (latest first)
-    transactions = [...new Map(transactions.map(item => [item.id, item])).values()];
 
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -95,7 +100,7 @@ function confirmDeleteTransaction(id, type) {
 function deleteTransaction(id, type) {
     let endpoint = type === "income" ? "api/income/deleteIncome" : "api/expense/deleteExpense";
 
-    fetch(`http://localhost:8080/${endpoint}/${id}`, {
+    fetch(`https://expense-tracker-afif.up.railway.app/${endpoint}/${id}`, {
         method: "DELETE"
     })
     .then(response => {

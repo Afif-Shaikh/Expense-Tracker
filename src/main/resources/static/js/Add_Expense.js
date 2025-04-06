@@ -36,7 +36,7 @@ document.getElementById('add-expense-form').addEventListener('submit', function(
     console.log("Sending Expense Data:", expenseData);
 
     // Send data to backend
-    fetch('http://localhost:8080/api/expense/addExpense', {
+    fetch('https://expense-tracker-afif.up.railway.app/api/expense/addExpense', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(expenseData)

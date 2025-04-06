@@ -34,7 +34,7 @@ document.getElementById("add-income-form").addEventListener("submit", function(e
     console.log("Sending Income Data:", incomeData);
 
     // Send data to backend
-    fetch("http://localhost:8080/api/income/addIncome", {
+    fetch("https://expense-tracker-afif.up.railway.app/api/income/addIncome", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(incomeData)
