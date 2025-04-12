@@ -12,4 +12,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     // Fetch all expenses sorted by date (latest first)
     @Query("SELECT e FROM Expense e ORDER BY e.date DESC")
     List<Expense> findAllExpensesSorted();
+    
+//    List<Expense> findByUserId(Long Id); 
+
 }

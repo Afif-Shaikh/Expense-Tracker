@@ -12,4 +12,7 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
     // Fetch all income sorted by date (latest first)
     @Query("SELECT i FROM Income i ORDER BY i.date DESC")
     List<Income> findAllIncomeSorted();
+    
+//    List<Income> findByUserId(Long Id);
+
 }

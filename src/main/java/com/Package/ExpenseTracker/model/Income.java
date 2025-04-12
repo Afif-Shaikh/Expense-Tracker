@@ -1,5 +1,7 @@
 package com.Package.ExpenseTracker.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -54,4 +56,22 @@ public class Income {
 	public void setDate(String date) {
 		this.date = date;
 	}
+
+	public Income(Long id, String name, double amount, String category, String date) {
+		this.id = id;
+		this.name = name;
+		this.amount = amount;
+		this.category = category;
+		this.date = date;
+	}
+	public Income(String name, double amount, LocalDate date, String category) {
+	    this.name = name;
+	    this.amount = amount;
+	    this.date = date.toString(); // Convert LocalDate to String
+	    this.category = category;
+	}
+
+	public Income() {
+	}
+	
 }
