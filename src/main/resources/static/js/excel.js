@@ -8,7 +8,6 @@ function showAlert(message, type = "success") {
     </div>
   `;
 }
-
 // Handle Excel upload
 document.getElementById("uploadForm").addEventListener("submit", function (e) {
   e.preventDefault();

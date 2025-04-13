@@ -17,14 +17,9 @@ public class TransactionExcelController {
     @Autowired
     private TransactionExcelService transactionExcelService;
 
-//    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public String uploadExcel(@RequestParam("file") MultipartFile file) throws IOException {
-//        transactionExcelService.importTransactionsFromExcel(file);
-//        return "Excel uploaded successfully!";
-//    }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> uploadExcel(@RequestParam("file") MultipartFile file) throws IOException {
-        return transactionExcelService.importTransactionsFromExcel(file); // No userId needed ✅
+        return transactionExcelService.importTransactionsFromExcel(file);
     }
 
 

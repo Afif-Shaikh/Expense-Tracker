@@ -59,6 +59,19 @@ h1 {
     background-color: #45a049;
 }
 
+.excel{
+	background-color: #f0ad4e;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.excel:hover {
+    background-color: #fbc02d;
+}
+
 .filters {
     display: flex;
     gap: 20px;

@@ -1,19 +1,30 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     if (!document.getElementById("category-chart")) {
         console.warn("Charts not loaded: No canvas elements found.");
         return; // Prevent execution if charts are not on this page
     }
 
-// Sample transaction data (replace with dynamic data in real app)
+const [incomeRes, expenseRes] = await Promise.all([
+    fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome"),
+    fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense")
+]);
+
+const incomeData = await incomeRes.json();
+const expenseData = await expenseRes.json();
+
 const transactions = [
-    { name: "Groceries", amount: 50.00, date: "2025-02-01", category: "Food" },
-    { name: "Salary", amount: 2000.00, date: "2025-02-01", category: "Income" },
-    { name: "Electricity Bill", amount: 100.00, date: "2025-02-02", category: "Bills" },
-    { name: "Movie Night", amount: 30.00, date: "2025-02-03", category: "Entertainment" },
-    { name: "Rent", amount: 800.00, date: "2025-02-05", category: "Housing" },
-    { name: "Gas", amount: 40.00, date: "2025-02-06", category: "Transportation" },
-    { name: "Freelance Project", amount: 500.00, date: "2025-02-02", category: "Freelance" },
-    { name: "Investment Return", amount: 200.00, date: "2025-02-04", category: "Investment" }
+    ...incomeData.map(entry => ({
+        name: entry.name,
+        amount: entry.amount,
+        date: entry.date,
+        category: entry.category || "Income"
+    })),
+    ...expenseData.map(entry => ({
+        name: entry.name,
+        amount: entry.amount,
+        date: entry.date,
+        category: entry.category
+    }))
 ];
 
 // Prepare data for the "Spending by Category" chart (Pie chart)
@@ -41,7 +52,7 @@ const timeLabels = Object.keys(timeData);
 const timeAmounts = Object.values(timeData);
 
 // Prepare data for the "Income Overview" chart (Line chart)
-const incomeData = transactions.reduce((acc, transaction) => {
+const incomeChartData = transactions.reduce((acc, transaction) => {
     if (transaction.category === "Income") {
         const date = transaction.date;
         if (!acc[date]) {
@@ -52,8 +63,8 @@ const incomeData = transactions.reduce((acc, transaction) => {
     return acc;
 }, {});
 
-const incomeLabels = Object.keys(incomeData);
-const incomeAmounts = Object.values(incomeData);
+const incomeLabels = Object.keys(incomeChartData);
+const incomeAmounts = Object.values(incomeChartData);
 
 // Render "Spending by Category" Pie Chart
 const ctxCategory = document.getElementById('category-chart').getContext('2d');

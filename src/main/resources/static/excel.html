@@ -8,7 +8,8 @@
 <body class="bg-light">
 
 <div class="container mt-5">
-  <h2 class="text-center mb-4">📊 Excel Import/Export</h2>
+<button class="excel" onclick="location.href='Transaction.html'">View All Transactions</button>
+  <h2 class="text-center mb-4">Excel Import/Export</h2>
 
   <div id="alertBox"></div>
 
@@ -22,7 +23,7 @@
         <div class="mb-3">
           <input type="file" class="form-control" id="excelFile" accept=".xlsx" required />
         </div>
-        <button type="submit" class="btn btn-success w-100">Upload File</button>
+        <button type="submit" class="btn text-white w-100" style="background-color: #4CAF50;">📤 Upload File</button>
       </form>
     </div>
   </div>
@@ -31,7 +32,7 @@
   <div class="card">
     <div class="card-header">📤 Download Excel</div>
     <div class="card-body text-center">
-      <button class="btn btn-primary w-100" id="downloadBtn">Download File</button>
+      <button class="btn btn-primary w-100" id="downloadBtn">📤 Download File</button>
     </div>
   </div>
 </div>
