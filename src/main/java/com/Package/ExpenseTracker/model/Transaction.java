@@ -1,6 +1,7 @@
 package com.Package.ExpenseTracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -12,27 +13,35 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     @Column(nullable = false)
     private String name;
 
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
+    @NotNull(message = "Date is required")
+    @PastOrPresent(message = "Date cannot be in the future")
     @Column(nullable = false)
     private LocalDate date;
 
+    @NotBlank(message = "Category is required")
     @Column(nullable = false)
     private String category;
 
+    @NotBlank(message = "Type is required")
+    @Pattern(regexp = "^(INCOME|EXPENSE)$", message = "Type must be INCOME or EXPENSE")
     @Column(nullable = false)
-    private String type; // "INCOME" or "EXPENSE"
+    private String type;
 
     private String comments;
 
     // Default constructor
     public Transaction() {}
 
-    // Constructor without id
     public Transaction(String name, BigDecimal amount, LocalDate date,
                        String category, String type, String comments) {
         this.name = name;
