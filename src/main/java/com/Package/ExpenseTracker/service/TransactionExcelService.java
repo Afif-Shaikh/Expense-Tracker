@@ -1,8 +1,6 @@
 package com.Package.ExpenseTracker.service;
 
 import com.Package.ExpenseTracker.model.*;
-import com.Package.ExpenseTracker.repository.ExpenseRepository;
-import com.Package.ExpenseTracker.repository.IncomeRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
