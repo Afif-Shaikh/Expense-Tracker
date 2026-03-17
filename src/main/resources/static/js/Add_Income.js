@@ -1,48 +1,66 @@
-// Set today's date as default in the date field
 document.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0];
+    // Set today's date as default
+    const dateField = document.getElementById("income-date");
+    dateField.value = new Date().toISOString().split("T")[0];
 
-    const incomeDateInput = document.getElementById("income-date");
-    if (incomeDateInput) {
-        incomeDateInput.value = today;
-    }
-});
+    const form = document.getElementById("add-income-form");
 
-document.getElementById("add-income-form").addEventListener("submit", function(event) {
-    event.preventDefault();
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    const incomeData = {
-        name: document.getElementById("income-name").value.trim(),
-        amount: parseFloat(document.getElementById("income-amount").value),
-        date: document.getElementById("income-date").value,
-        category: document.getElementById("income-category").value
-    };
+        const name = document.getElementById("income-name").value.trim();
+        const amount = parseFloat(document.getElementById("income-amount").value);
+        const date = document.getElementById("income-date").value;
+        const category = document.getElementById("income-category").value;
 
-    const today = new Date().toISOString().split("T")[0];
+        // Validations
+        if (!name || name.length < 2) {
+            alert("Please enter a valid income source (at least 2 characters).");
+            return;
+        }
+        if (isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount greater than zero.");
+            return;
+        }
+        if (!date) {
+            alert("Please select a date.");
+            return;
+        }
 
-    // Validations
-    if (incomeData.name.length < 3 || !incomeData.date || incomeData.date > today || !incomeData.category) {
-        alert("Please fill out all required fields correctly.");
-        return;
-    }
+        const income = {
+            name: name,
+            amount: amount,
+            date: date,
+            category: category,
+            type: "INCOME",
+            comments: null
+        };
 
-    if (isNaN(incomeData.amount) || incomeData.amount <= 0) {
-        alert("Enter a valid positive amount.");
-        return;
-    }
-
-    console.log("Sending Income Data:", incomeData);
-
-    // Send data to backend
-    fetch("https://expense-tracker-afif.up.railway.app/api/income/addIncome", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(incomeData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert("Income added successfully!");
-        window.location.href = "Dashboard.html";
-    })
-    .catch(error => console.error("Error:", error));
+        fetch("/api/transactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(income)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw err;
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Income added successfully!");
+            window.location.href = "Dashboard.html";
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            if (error.details) {
+                const messages = error.details.map(d => d.field + ": " + d.message);
+                alert("Validation errors:\n" + messages.join("\n"));
+            } else {
+                alert("Failed to add income. Please try again.");
+            }
+        });
+    });
 });

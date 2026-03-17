@@ -1,50 +1,67 @@
-// Set today's date as default in the date field
 document.addEventListener("DOMContentLoaded", function () {
-    const today = new Date().toISOString().split("T")[0];
+    // Set today's date as default
+    const dateField = document.getElementById("expense-date");
+    dateField.value = new Date().toISOString().split("T")[0];
 
-    const expenseDateInput = document.getElementById("expense-date");
-    if (expenseDateInput) {
-        expenseDateInput.value = today;
-    }
-});
+    const form = document.getElementById("add-expense-form");
 
-document.getElementById('add-expense-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
 
-    const expenseData = {
-        name: document.getElementById('expense-name').value.trim(),
-        amount: parseFloat(document.getElementById('expense-amount').value),
-        date: document.getElementById('expense-date').value,
-        category: document.getElementById('expense-category').value,
-        type: document.getElementById('type').value,
-        comments: document.getElementById('other-details').value.trim()
-    };
+        const name = document.getElementById("expense-name").value.trim();
+        const amount = parseFloat(document.getElementById("expense-amount").value);
+        const date = document.getElementById("expense-date").value;
+        const category = document.getElementById("expense-category").value;
+        const comments = document.getElementById("other-details").value.trim();
 
-    const today = new Date().toISOString().split("T")[0];
+        // Validations
+        if (!name || name.length < 2) {
+            alert("Please enter a valid expense name (at least 2 characters).");
+            return;
+        }
+        if (isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount greater than zero.");
+            return;
+        }
+        if (!date) {
+            alert("Please select a date.");
+            return;
+        }
 
-    // Validations
-    if (expenseData.name.length < 3 || !expenseData.date || expenseData.date > today || !expenseData.category || !expenseData.type) {
-        alert("Please fill out all required fields correctly.");
-        return;
-    }
+        const expense = {
+            name: name,
+            amount: amount,
+            date: date,
+            category: category,
+            type: "EXPENSE",
+            comments: comments || null
+        };
 
-    if (isNaN(expenseData.amount) || expenseData.amount <= 0) {
-        alert("Enter a valid positive amount.");
-        return;
-    }
-
-    console.log("Sending Expense Data:", expenseData);
-
-    // Send data to backend
-    fetch('https://expense-tracker-afif.up.railway.app/api/expense/addExpense', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(expenseData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert('Expense added successfully!');
-        window.location.href = "Dashboard.html";
-    })
-    .catch(error => console.error('Error:', error));
+        fetch("/api/transactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(expense)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw err;
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Expense added successfully!");
+            window.location.href = "Dashboard.html";
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            if (error.details) {
+                const messages = error.details.map(d => d.field + ": " + d.message);
+                alert("Validation errors:\n" + messages.join("\n"));
+            } else {
+                alert("Failed to add expense. Please try again.");
+            }
+        });
+    });
 });

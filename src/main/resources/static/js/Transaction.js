@@ -1,127 +1,102 @@
+let transactions = [];
+let currentPage = 1;
+const perPage = 10;
+
 document.addEventListener("DOMContentLoaded", function () {
     fetchTransactions();
+
+    document.getElementById("category-filter").addEventListener("change", renderTransactions);
+    document.getElementById("type-filter").addEventListener("change", renderTransactions);
+    document.querySelector(".prev-btn").addEventListener("click", () => {
+        if (currentPage > 1) { currentPage--; renderTransactions(); }
+    });
+    document.querySelector(".next-btn").addEventListener("click", () => {
+        currentPage++;
+        renderTransactions();
+    });
 });
 
-let transactions = [];
-
 function fetchTransactions() {
-    let transactionsList = document.getElementById("transactions-list");
-    transactionsList.innerHTML = ""; // Clear previous data
-    transactions = []; // Reset transactions array
-
-    // Fetch Expenses and Income, then update UI only once
-    Promise.all([
-        fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense").then(response => response.json()),
-        fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome").then(response => response.json())
-    ])
-    .then(([expenses, income]) => {
-        // Adding expenses to transactions
-        expenses.forEach(expense => {
-            if (!transactions.some(transaction => transaction.id === expense.id && transaction.type === "expense")) {
-                transactions.push({
-                    id: expense.id,
-                    name: expense.name,
-                    amount: expense.amount,
-                    date: expense.date,
-                    category: expense.category,
-                    type: "expense"
-                });
-            }
+    fetch("/api/transactions")
+        .then(response => response.json())
+        .then(data => {
+            transactions = data;
+            renderTransactions();
+        })
+        .catch(error => {
+            console.error("Error fetching transactions:", error);
         });
-
-        // Adding income to transactions
-        income.forEach(entry => {
-            if (!transactions.some(transaction => transaction.id === entry.id && transaction.type === "income")) {
-                transactions.push({
-                    id: entry.id,
-                    name: entry.name,
-                    amount: entry.amount,
-                    date: entry.date,
-                    category: entry.category,
-                    type: "income"
-                });
-            }
-        });
-
-        renderTransactions(); // Now render only once
-    })
-    .catch(error => console.error("Error fetching transactions:", error));
 }
 
-// Function to render transactions in the list
 function renderTransactions() {
-    console.log("Rendering transactions...");
-    const transactionsList = document.getElementById("transactions-list");
-    transactionsList.innerHTML = ""; // Clear previous entries
+    const list = document.getElementById("transactions-list");
+    list.innerHTML = "";
 
-    // Ensure transactions are sorted (latest first)
+    const categoryFilter = document.getElementById("category-filter").value.toLowerCase();
+    const typeFilter = document.getElementById("type-filter").value.toLowerCase();
 
-    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    let filtered = transactions.filter(t => {
+        const matchCategory = categoryFilter === "all"
+            || t.category.toLowerCase() === categoryFilter;
+        const matchType = typeFilter === "all"
+            || t.type.toLowerCase() === typeFilter;
+        return matchCategory && matchType;
+    });
 
-    transactions.forEach(transaction => {
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / perPage);
+    const start = (currentPage - 1) * perPage;
+    const pageItems = filtered.slice(start, start + perPage);
+
+    if (pageItems.length === 0) {
+        list.innerHTML = "<li style='padding:15px; color:#777;'>No transactions found.</li>";
+        return;
+    }
+
+    pageItems.forEach(t => {
+        const isExpense = t.type === "EXPENSE";
+        const sign = isExpense ? "-" : "+";
+        const amountClass = isExpense ? "expense" : "income";
+
         const li = document.createElement("li");
         li.innerHTML = `
             <div class="transaction-info">
-                <strong>${transaction.name}</strong>
-                <span>${transaction.date} | ${transaction.category}</span>
+                <strong>${t.name}</strong>
+                <span>${t.category} • ${t.date}</span>
             </div>
-            <div class="transaction-amount ${transaction.type}">₹${transaction.amount}</div>
+            <span class="transaction-amount ${amountClass}">
+                ${sign}₹${parseFloat(t.amount).toFixed(2)}
+            </span>
             <div class="transaction-actions">
-                <button onclick="editTransaction(${transaction.id}, '${transaction.type}')">Edit</button>
-                <button onclick="confirmDeleteTransaction(${transaction.id}, '${transaction.type}')">Delete</button>
+                <button onclick="confirmDeleteTransaction(${t.id})">Delete</button>
             </div>
         `;
-        transactionsList.appendChild(li);
-    });
-}
-
-// Filter Transactions
-function filterTransactions() {
-    const categoryFilter = document.getElementById("category-filter").value;
-    const typeFilter = document.getElementById("type-filter").value;
-
-    filteredTransactions = transactions.filter(transaction => {
-        return (categoryFilter === "all" || transaction.category === categoryFilter) &&
-               (typeFilter === "all" || transaction.type === typeFilter);
+        list.appendChild(li);
     });
 
-    renderTransactions();
+    // Update pagination buttons
+    document.querySelector(".prev-btn").disabled = currentPage <= 1;
+    document.querySelector(".next-btn").disabled = currentPage >= totalPages;
 }
 
-// Confirm and Delete transaction
-function confirmDeleteTransaction(id, type) {
-    const confirmation = window.confirm("Are you sure you want to delete this transaction?");
-    if (confirmation) {
-        deleteTransaction(id, type);
+function confirmDeleteTransaction(id) {
+    if (confirm("Are you sure you want to delete this transaction?")) {
+        deleteTransaction(id);
     }
 }
 
-// Delete transaction (calls backend API)
-function deleteTransaction(id, type) {
-    let endpoint = type === "income" ? "api/income/deleteIncome" : "api/expense/deleteExpense";
-
-    fetch(`https://expense-tracker-afif.up.railway.app/${endpoint}/${id}`, {
-        method: "DELETE"
-    })
-    .then(response => {
-        if (response.ok) {
-            alert("Transaction deleted successfully!");
-            fetchTransactions(); // Refresh the list after deletion
-        } else {
+function deleteTransaction(id) {
+    fetch(`/api/transactions/${id}`, { method: "DELETE" })
+        .then(response => {
+            if (!response.ok) throw new Error("Delete failed");
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+            fetchTransactions();
+        })
+        .catch(error => {
+            console.error("Error:", error);
             alert("Failed to delete transaction.");
-        }
-    })
-    .catch(error => console.error("Error deleting transaction:", error));
+        });
 }
-
-// Edit transaction (Functionality to be added later)
-function editTransaction(id, type) {
-    alert(`Editing ${type} transaction with ID: ${id}`);
-}
-
-// Event Listeners for Filters
-document.getElementById("category-filter").addEventListener("change", filterTransactions);
-document.getElementById("type-filter").addEventListener("change", filterTransactions);
-
-// Initial render
-fetchTransactions();

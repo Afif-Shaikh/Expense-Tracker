@@ -1,14 +1,19 @@
 package com.Package.ExpenseTracker.controller;
 
 import com.Package.ExpenseTracker.model.Transaction;
+import com.Package.ExpenseTracker.service.TransactionExcelService;
 import com.Package.ExpenseTracker.service.TransactionService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +27,12 @@ public class TransactionController {
     private static final Logger log = LoggerFactory.getLogger(TransactionController.class);
 
     private final TransactionService transactionService;
+    private final TransactionExcelService excelService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService,
+                                 TransactionExcelService excelService) {
         this.transactionService = transactionService;
+        this.excelService = excelService;
     }
 
     @PostMapping
@@ -78,5 +86,30 @@ public class TransactionController {
         summary.put("totalExpense", transactionService.getTotalExpense());
         summary.put("balance", transactionService.getBalance());
         return ResponseEntity.ok(summary);
+    }
+
+    // Excel Export
+    @GetMapping("/excel/download")
+    public void downloadExcel(HttpServletResponse response) throws IOException {
+        log.info("GET /api/transactions/excel/download — exporting Excel");
+        response.setContentType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        response.setHeader("Content-Disposition",
+                "attachment; filename=transactions.xlsx"
+        );
+        try (OutputStream out = response.getOutputStream()) {
+            excelService.exportTransactionsToExcel().transferTo(out);
+            out.flush();
+        }
+    }
+
+    // Excel Import
+    @PostMapping("/excel/upload")
+    public ResponseEntity<Map<String, Object>> uploadExcel(
+            @RequestParam("file") MultipartFile file) {
+        log.info("POST /api/transactions/excel/upload — importing Excel");
+        Map<String, Object> result = excelService.importTransactionsFromExcel(file);
+        return ResponseEntity.ok(result);
     }
 }

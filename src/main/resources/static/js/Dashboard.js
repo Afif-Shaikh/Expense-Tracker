@@ -1,65 +1,62 @@
 document.addEventListener("DOMContentLoaded", function () {
-    fetchExpenses();
-    fetchIncome();
+    fetchSummary();
+    fetchRecentTransactions();
 });
 
-function fetchExpenses() {
-    fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense")
-    .then(response => response.json())
-    .then(expenses => {
-        let expenseList = document.getElementById("transactions-list");
-        expenseList.innerHTML = "";
-
-        expenses.forEach(expense => {
-            let listItem = document.createElement("li");
-            listItem.innerHTML = `<strong>${expense.name}</strong> - ₹${expense.amount} (${expense.category}) on ${expense.date}`;
-            expenseList.appendChild(listItem);
+function fetchSummary() {
+    fetch("/api/transactions/summary")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("total-income").textContent =
+                `₹${parseFloat(data.totalIncome).toFixed(2)}`;
+            document.getElementById("total-expenses").textContent =
+                `₹${parseFloat(data.totalExpense).toFixed(2)}`;
+            document.getElementById("current-balance").textContent =
+                `₹${parseFloat(data.balance).toFixed(2)}`;
+        })
+        .catch(error => {
+            console.error("Error fetching summary:", error);
         });
-
-        updateDashboard();
-    })
-    .catch(error => console.error("Error fetching expenses:", error));
 }
 
-function fetchIncome() {
-    fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome")
-    .then(response => response.json())
-    .then(income => {
-        let incomeList = document.getElementById("transactions-list");
-        
-        income.forEach(entry => {
-            let listItem = document.createElement("li");
-            listItem.innerHTML = `<strong>${entry.name}</strong> - ₹${entry.amount} (${entry.category}) on ${entry.date}`;
-            incomeList.appendChild(listItem);
+function fetchRecentTransactions() {
+    fetch("/api/transactions")
+        .then(response => response.json())
+        .then(transactions => {
+            const list = document.getElementById("transactions-list");
+            list.innerHTML = "";
+
+            // Show only last 5 transactions
+            const recent = transactions.slice(0, 5);
+
+            if (recent.length === 0) {
+                list.innerHTML = "<li style='padding:15px; color:#777;'>No transactions yet.</li>";
+                return;
+            }
+
+            recent.forEach(t => {
+                const li = document.createElement("li");
+                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #eee;";
+
+                const isExpense = t.type === "EXPENSE";
+                const sign = isExpense ? "-" : "+";
+                const color = isExpense ? "#d9534f" : "#4CAF50";
+
+                li.innerHTML = `
+                    <div>
+                        <strong>${t.name}</strong>
+                        <span style="color:#777; font-size:13px; margin-left:10px;">
+                            ${t.category} • ${t.date}
+                        </span>
+                    </div>
+                    <span style="color:${color}; font-weight:600; font-size:16px;">
+                        ${sign}₹${parseFloat(t.amount).toFixed(2)}
+                    </span>
+                `;
+                list.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching transactions:", error);
         });
-
-        updateDashboard();
-    })
-    .catch(error => console.error("Error fetching income:", error));
-}
-
-function updateDashboard() {
-    let totalIncome = 0;
-    let totalExpenses = 0;
-
-    const incomePromise = fetch("https://expense-tracker-afif.up.railway.app/api/income/getIncome")
-    .then(response => response.json())
-    .then(income => {
-        income.forEach(entry => totalIncome += entry.amount);
-        document.getElementById("total-income").textContent = `₹${totalIncome.toFixed(2)}`;
-    });
-
-    const expensePromise = fetch("https://expense-tracker-afif.up.railway.app/api/expense/getExpense")
-    .then(response => response.json())
-    .then(expenses => {
-        expenses.forEach(expense => totalExpenses += expense.amount);
-        document.getElementById("total-expenses").textContent = `₹${totalExpenses.toFixed(2)}`;
-
-//        let currentBalance = totalIncome - totalExpenses;
-//        document.getElementById("current-balance").textContent = `₹${currentBalance.toFixed(2)}`;
-    });
-	Promise.all([incomePromise, expensePromise]).then(() => {
-	        let currentBalance = totalIncome - totalExpenses;
-	        document.getElementById("current-balance").textContent = `₹${currentBalance.toFixed(2)}`;
-	    });
 }
