@@ -1,56 +1,21 @@
-package com.Package.ExpenseTracker.controller;
+package com.Package.ExpenseTracker.repository;
 
 import com.Package.ExpenseTracker.model.Transaction;
-import com.Package.ExpenseTracker.service.TransactionService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@RestController
-@RequestMapping("/api/transactions")
-@CrossOrigin(origins = "*")
-public class TransactionController {
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    private final TransactionService transactionService;
+    List<Transaction> findByTypeIgnoreCaseOrderByDateDesc(String type);
 
-    public TransactionController(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
+    List<Transaction> findAllByOrderByDateDesc();
 
-    @PostMapping
-    public ResponseEntity<Transaction> create(@Valid @RequestBody Transaction transaction) {
-        Transaction saved = transactionService.create(transaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
+    List<Transaction> findByCategoryIgnoreCaseOrderByDateDesc(String category);
 
-    @GetMapping
-    public List<Transaction> getAll() {
-        return transactionService.getAll();
-    }
-
-    @GetMapping("/type/{type}")
-    public List<Transaction> getByType(@PathVariable String type) {
-        return transactionService.getByType(type);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        transactionService.delete(id);
-        return ResponseEntity.ok("Transaction deleted successfully");
-    }
-
-    @GetMapping("/summary")
-    public Map<String, BigDecimal> getSummary() {
-        Map<String, BigDecimal> summary = new HashMap<>();
-        summary.put("totalIncome", transactionService.getTotalIncome());
-        summary.put("totalExpense", transactionService.getTotalExpense());
-        summary.put("balance", transactionService.getBalance());
-        return summary;
-    }
+    List<Transaction> findByTypeAndCategoryIgnoreCaseOrderByDateDesc(
+            String type, String category
+    );
 }
