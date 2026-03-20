@@ -1,5 +1,6 @@
 package com.Package.ExpenseTracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
@@ -39,7 +40,11 @@ public class Transaction {
 
     private String comments;
 
-    // Default constructor
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
     public Transaction() {}
 
     public Transaction(String name, BigDecimal amount, LocalDate date,
@@ -73,4 +78,7 @@ public class Transaction {
 
     public String getComments() { return comments; }
     public void setComments(String comments) { this.comments = comments; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

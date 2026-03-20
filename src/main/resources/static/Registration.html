@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Expense Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container" style="max-width: 450px;">
+    <header style="justify-content: center;">
+        <h1>Create Account</h1>
+    </header>
+    <div id="error-msg" style="color: red; text-align: center; margin-bottom: 15px; display: none;"></div>
+    <form id="register-form" class="form">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" required placeholder="Your Name">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required placeholder="Your Email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required placeholder="Min 6 characters">
+        </div>
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" required placeholder="Confirm Password">
+        </div>
+        <button type="submit" class="submit-btn" style="width: 100%;">Register</button>
+    </form>
+    <p style="text-align: center; margin-top: 20px;">
+        Already have an account?
+        <a href="login.html" style="color: #4CAF50; font-weight: 500;">Login</a>
+    </p>
+</div>
+<script src="js/Registration.js"></script>
+</body>
+</html>

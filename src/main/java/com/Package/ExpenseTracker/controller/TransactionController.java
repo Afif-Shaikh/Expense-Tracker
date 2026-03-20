@@ -1,9 +1,12 @@
 package com.Package.ExpenseTracker.controller;
 
 import com.Package.ExpenseTracker.model.Transaction;
+import com.Package.ExpenseTracker.model.User;
 import com.Package.ExpenseTracker.service.TransactionExcelService;
 import com.Package.ExpenseTracker.service.TransactionService;
+import com.Package.ExpenseTracker.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,88 +31,102 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final TransactionExcelService excelService;
+    private final UserService userService;
 
     public TransactionController(TransactionService transactionService,
-                                 TransactionExcelService excelService) {
+                                 TransactionExcelService excelService,
+                                 UserService userService) {
         this.transactionService = transactionService;
         this.excelService = excelService;
+        this.userService = userService;
+    }
+
+    // Helper to get current user from session
+    private User getCurrentUser(HttpSession session) {
+        String email = (String) session.getAttribute("userEmail");
+        if (email == null) {
+            throw new RuntimeException("Not authenticated");
+        }
+        return userService.findByEmail(email);
     }
 
     @PostMapping
-    public ResponseEntity<Transaction> create(@Valid @RequestBody Transaction transaction) {
-        log.info("POST /api/transactions — creating transaction");
-        Transaction saved = transactionService.create(transaction);
+    public ResponseEntity<Transaction> create(@Valid @RequestBody Transaction transaction,
+                                              HttpSession session) {
+        User user = getCurrentUser(session);
+        Transaction saved = transactionService.create(transaction, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAll() {
-        log.info("GET /api/transactions — fetching all");
-        return ResponseEntity.ok(transactionService.getAll());
+    public ResponseEntity<List<Transaction>> getAll(HttpSession session) {
+        User user = getCurrentUser(session);
+        return ResponseEntity.ok(transactionService.getAll(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getById(@PathVariable Long id) {
-        log.info("GET /api/transactions/{} — fetching by id", id);
-        return ResponseEntity.ok(transactionService.getById(id));
+    public ResponseEntity<Transaction> getById(@PathVariable Long id,
+                                               HttpSession session) {
+        User user = getCurrentUser(session);
+        return ResponseEntity.ok(transactionService.getById(id, user));
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<Transaction>> getByType(@PathVariable String type) {
-        log.info("GET /api/transactions/type/{} — fetching by type", type);
-        return ResponseEntity.ok(transactionService.getByType(type));
+    public ResponseEntity<List<Transaction>> getByType(@PathVariable String type,
+                                                       HttpSession session) {
+        User user = getCurrentUser(session);
+        return ResponseEntity.ok(transactionService.getByType(user, type));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> update(
-            @PathVariable Long id,
-            @Valid @RequestBody Transaction transaction) {
-        log.info("PUT /api/transactions/{} — updating", id);
-        Transaction updated = transactionService.update(id, transaction);
+    public ResponseEntity<Transaction> update(@PathVariable Long id,
+                                              @Valid @RequestBody Transaction transaction,
+                                              HttpSession session) {
+        User user = getCurrentUser(session);
+        Transaction updated = transactionService.update(id, transaction, user);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
-        log.info("DELETE /api/transactions/{} — deleting", id);
-        transactionService.delete(id);
+    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id,
+                                                      HttpSession session) {
+        User user = getCurrentUser(session);
+        transactionService.delete(id, user);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Transaction deleted successfully");
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<Map<String, BigDecimal>> getSummary() {
-        log.info("GET /api/transactions/summary — fetching summary");
+    public ResponseEntity<Map<String, BigDecimal>> getSummary(HttpSession session) {
+        User user = getCurrentUser(session);
         Map<String, BigDecimal> summary = new HashMap<>();
-        summary.put("totalIncome", transactionService.getTotalIncome());
-        summary.put("totalExpense", transactionService.getTotalExpense());
-        summary.put("balance", transactionService.getBalance());
+        summary.put("totalIncome", transactionService.getTotalIncome(user));
+        summary.put("totalExpense", transactionService.getTotalExpense(user));
+        summary.put("balance", transactionService.getBalance(user));
         return ResponseEntity.ok(summary);
     }
 
-    // Excel Export
     @GetMapping("/excel/download")
-    public void downloadExcel(HttpServletResponse response) throws IOException {
-        log.info("GET /api/transactions/excel/download — exporting Excel");
+    public void downloadExcel(HttpServletResponse response,
+                              HttpSession session) throws IOException {
+        User user = getCurrentUser(session);
         response.setContentType(
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition",
-                "attachment; filename=transactions.xlsx"
-        );
+                "attachment; filename=transactions.xlsx");
         try (OutputStream out = response.getOutputStream()) {
-            excelService.exportTransactionsToExcel().transferTo(out);
+            excelService.exportTransactionsToExcel(user).transferTo(out);
             out.flush();
         }
     }
 
-    // Excel Import
     @PostMapping("/excel/upload")
     public ResponseEntity<Map<String, Object>> uploadExcel(
-            @RequestParam("file") MultipartFile file) {
-        log.info("POST /api/transactions/excel/upload — importing Excel");
-        Map<String, Object> result = excelService.importTransactionsFromExcel(file);
+            @RequestParam("file") MultipartFile file,
+            HttpSession session) {
+        User user = getCurrentUser(session);
+        Map<String, Object> result = excelService.importTransactionsFromExcel(file, user);
         return ResponseEntity.ok(result);
     }
 }

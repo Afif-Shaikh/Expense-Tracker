@@ -1,21 +1,21 @@
 package com.Package.ExpenseTracker.repository;
 
 import com.Package.ExpenseTracker.model.Transaction;
+import com.Package.ExpenseTracker.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findByTypeIgnoreCaseOrderByDateDesc(String type);
+    List<Transaction> findByUserOrderByDateDesc(User user);
 
-    List<Transaction> findAllByOrderByDateDesc();
+    List<Transaction> findByUserAndTypeIgnoreCaseOrderByDateDesc(User user, String type);
 
-    List<Transaction> findByCategoryIgnoreCaseOrderByDateDesc(String category);
+    Optional<Transaction> findByIdAndUser(Long id, User user);
 
-    List<Transaction> findByTypeAndCategoryIgnoreCaseOrderByDateDesc(
-            String type, String category
-    );
+    boolean existsByIdAndUser(Long id, User user);
 }

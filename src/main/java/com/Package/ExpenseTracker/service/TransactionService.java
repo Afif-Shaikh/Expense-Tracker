@@ -2,6 +2,7 @@ package com.Package.ExpenseTracker.service;
 
 import com.Package.ExpenseTracker.exception.TransactionNotFoundException;
 import com.Package.ExpenseTracker.model.Transaction;
+import com.Package.ExpenseTracker.model.User;
 import com.Package.ExpenseTracker.repository.TransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,38 +22,35 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction create(Transaction transaction) {
-        log.info("Creating transaction: name={}, type={}, amount={}",
-                transaction.getName(), transaction.getType(), transaction.getAmount());
+    public Transaction create(Transaction transaction, User user) {
+        log.info("Creating transaction for user={}: name={}, type={}, amount={}",
+                user.getEmail(), transaction.getName(),
+                transaction.getType(), transaction.getAmount());
+        transaction.setUser(user);
         Transaction saved = transactionRepository.save(transaction);
-        log.info("Transaction created with id={}", saved.getId());
+        log.info("Transaction created: id={}", saved.getId());
         return saved;
     }
 
-    public List<Transaction> getAll() {
-        log.info("Fetching all transactions");
-        List<Transaction> transactions = transactionRepository.findAllByOrderByDateDesc();
-        log.info("Found {} transactions", transactions.size());
-        return transactions;
+    public List<Transaction> getAll(User user) {
+        log.info("Fetching all transactions for user={}", user.getEmail());
+        return transactionRepository.findByUserOrderByDateDesc(user);
     }
 
-    public List<Transaction> getByType(String type) {
-        log.info("Fetching transactions by type={}", type);
-        List<Transaction> transactions =
-                transactionRepository.findByTypeIgnoreCaseOrderByDateDesc(type);
-        log.info("Found {} transactions of type {}", transactions.size(), type);
-        return transactions;
+    public List<Transaction> getByType(User user, String type) {
+        log.info("Fetching transactions by type={} for user={}", type, user.getEmail());
+        return transactionRepository.findByUserAndTypeIgnoreCaseOrderByDateDesc(user, type);
     }
 
-    public Transaction getById(Long id) {
-        log.info("Fetching transaction by id={}", id);
-        return transactionRepository.findById(id)
+    public Transaction getById(Long id, User user) {
+        log.info("Fetching transaction id={} for user={}", id, user.getEmail());
+        return transactionRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 
-    public Transaction update(Long id, Transaction updated) {
-        log.info("Updating transaction id={}", id);
-        Transaction existing = getById(id);
+    public Transaction update(Long id, Transaction updated, User user) {
+        log.info("Updating transaction id={} for user={}", id, user.getEmail());
+        Transaction existing = getById(id, user);
 
         existing.setName(updated.getName());
         existing.setAmount(updated.getAmount());
@@ -66,32 +64,32 @@ public class TransactionService {
         return saved;
     }
 
-    public void delete(Long id) {
-        log.info("Deleting transaction id={}", id);
-        if (!transactionRepository.existsById(id)) {
+    public void delete(Long id, User user) {
+        log.info("Deleting transaction id={} for user={}", id, user.getEmail());
+        if (!transactionRepository.existsByIdAndUser(id, user)) {
             throw new TransactionNotFoundException(id);
         }
         transactionRepository.deleteById(id);
         log.info("Transaction deleted: id={}", id);
     }
 
-    public BigDecimal getTotalIncome() {
+    public BigDecimal getTotalIncome(User user) {
         return transactionRepository
-                .findByTypeIgnoreCaseOrderByDateDesc("INCOME")
+                .findByUserAndTypeIgnoreCaseOrderByDateDesc(user, "INCOME")
                 .stream()
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getTotalExpense() {
+    public BigDecimal getTotalExpense(User user) {
         return transactionRepository
-                .findByTypeIgnoreCaseOrderByDateDesc("EXPENSE")
+                .findByUserAndTypeIgnoreCaseOrderByDateDesc(user, "EXPENSE")
                 .stream()
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getBalance() {
-        return getTotalIncome().subtract(getTotalExpense());
+    public BigDecimal getBalance(User user) {
+        return getTotalIncome(user).subtract(getTotalExpense(user));
     }
 }

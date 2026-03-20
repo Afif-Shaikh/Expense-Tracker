@@ -112,4 +112,28 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    // Add this method inside the existing class
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
+
+        log.warn("Runtime exception: {}", ex.getMessage());
+
+        // Check if it's an auth error
+        if (ex.getMessage() != null && ex.getMessage().contains("Not authenticated")) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("timestamp", LocalDateTime.now().toString());
+            response.put("status", HttpStatus.UNAUTHORIZED.value());
+            response.put("error", "Unauthorized");
+            response.put("message", "Please login first");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
 }
