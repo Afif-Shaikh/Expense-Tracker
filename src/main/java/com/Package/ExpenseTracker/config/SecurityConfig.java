@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,25 +36,42 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        // Public pages
+                        // Public - auth endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // Public - static pages
                         .requestMatchers(
                                 "/",
                                 "/index.html",
                                 "/login.html",
-                                "/Registration.html",
+                                "/Registration.html"
+                        ).permitAll()
+                        // Public - static resources
+                        .requestMatchers(
                                 "/css/**",
                                 "/js/**",
-                                "/api/auth/**"
+                                "/images/**",
+                                "/favicon.ico"
                         ).permitAll()
-                        // Everything else requires login
+                        // Protected - all HTML pages
+                        .requestMatchers(
+                                "/Dashboard.html",
+                                "/Add_Expense.html",
+                                "/Add_Income.html",
+                                "/Transaction.html",
+                                "/excel.html",
+                                "/charts.html"
+                        ).permitAll()  // Allow page load, auth.js handles redirect
+                        // Protected - all API endpoints
+                        .requestMatchers("/api/**").authenticated()
+                        // Everything else
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
-                );
+                .httpBasic(basic -> basic.disable());
 
         return http.build();
     }

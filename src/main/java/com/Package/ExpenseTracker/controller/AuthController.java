@@ -11,8 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,7 +41,8 @@ public class AuthController {
                     request.getPassword()
             );
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new AuthResponse("Registration successful", user.getName(), user.getEmail()));
+                    .body(new AuthResponse("Registration successful",
+                            user.getName(), user.getEmail()));
         } catch (RuntimeException e) {
             log.warn("Registration failed: {}", e.getMessage());
             return ResponseEntity.badRequest()
@@ -50,12 +55,30 @@ public class AuthController {
                                    HttpSession session) {
         try {
             User user = userService.login(request.getEmail(), request.getPassword());
+
+            // Set session attributes
             session.setAttribute("userId", user.getId());
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("userName", user.getName());
 
+            // Set Spring Security context
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(
+                            user.getEmail(),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // Store security context in session
+            session.setAttribute("SPRING_SECURITY_CONTEXT",
+                    SecurityContextHolder.getContext());
+
+            log.info("Login successful, session created for: {}", user.getEmail());
+
             return ResponseEntity.ok(
-                    new AuthResponse("Login successful", user.getName(), user.getEmail()));
+                    new AuthResponse("Login successful",
+                            user.getName(), user.getEmail()));
         } catch (RuntimeException e) {
             log.warn("Login failed: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -66,6 +89,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
