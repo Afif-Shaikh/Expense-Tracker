@@ -7,50 +7,116 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="js/auth.js"></script>
+    <script src="js/navbar.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Transactions List</h1>
-            
-            <a href="Dashboard.html" class="back-btn">Back to Dashboard</a>
-            <button class="excel" onclick="location.href='excel.html'">Import/Export Transactions</button>
-            <button class="add-btn" onclick="location.href='Add_Expense.html'">Add New Expense</button>
-			<button class="add-btn" onclick="location.href='Add_Income.html'">Add New Income</button>
-        </header>
+<div class="container">
+    <header>
+        <h1>Transactions</h1>
+        <a href="Dashboard.html" class="back-btn">Back to Dashboard</a>
+        <button class="excel" onclick="location.href='excel.html'">Import/Export</button>
+        <button class="add-btn" onclick="location.href='Add_Expense.html'">Add Expense</button>
+        <button class="add-btn" onclick="location.href='Add_Income.html'">Add Income</button>
+    </header>
 
-        <div class="filters">
-            <label for="category-filter">Filter by Category:</label>
-            <select id="category-filter">
-                <option value="all">All</option>
-                <option value="food">Food</option>
-                <option value="transport">Transport</option>
-                <option value="bills">Bills</option>
-                <option value="entertainment">Entertainment</option>
-            </select>
+    <div class="filters">
+        <label for="category-filter">Category:</label>
+        <select id="category-filter">
+            <option value="all">All</option>
+            <option value="food">Food</option>
+            <option value="bills">Bills</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="transportation">Transportation</option>
+            <option value="salary">Salary</option>
+            <option value="freelance">Freelance</option>
+            <option value="business">Business</option>
+            <option value="other">Other</option>
+        </select>
 
-            <label for="type-filter">Filter by Type:</label>
-            <select id="type-filter">
-                <option value="all">All</option>
-                <option value="need">Need</option>
-                <option value="want">Want</option>
-                <option value="investment">Investment</option>
-            </select>
-        </div>
-
-        <div class="transactions-list">
-            <h2>Recent Transactions</h2>
-            <ul id="transactions-list">
-                <!-- Transactions will be dynamically inserted here -->
-            </ul>
-        </div>
-
-        <div class="pagination">
-            <button class="prev-btn">Previous</button>
-            <button class="next-btn">Next</button>
-        </div>
+        <label for="type-filter">Type:</label>
+        <select id="type-filter">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
     </div>
 
-    <script src="js/Transaction.js"></script>
+    <div class="transactions-list">
+        <h2>All Transactions</h2>
+        <ul id="transactions-list"></ul>
+    </div>
+
+    <div class="pagination">
+        <button class="prev-btn" disabled>Previous</button>
+        <button class="next-btn">Next</button>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    ">
+    <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        ">
+        <h2 style="margin-bottom: 20px;">Edit Transaction</h2>
+        <form id="edit-form" class="form">
+            <div class="form-group">
+                <label for="edit-name">Name</label>
+                <input type="text" id="edit-name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-amount">Amount (₹)</label>
+                <input type="number" id="edit-amount" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-date">Date</label>
+                <input type="date" id="edit-date" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-category">Category</label>
+                <select id="edit-category" required>
+                    <option value="Food">Food</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Business">Business</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-type">Type</label>
+                <select id="edit-type" required>
+                    <option value="INCOME">Income</option>
+                    <option value="EXPENSE">Expense</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-comments">Comments</label>
+                <textarea id="edit-comments" style="height:60px; resize:none;"></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="submit" style="flex:1;">Save</button>
+                <button type="button" onclick="closeEdit()"
+                        style="flex:1; background-color:#999;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="js/Transaction.js"></script>
 </body>
 </html>
