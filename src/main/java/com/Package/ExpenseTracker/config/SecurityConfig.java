@@ -1,6 +1,7 @@
 package com.Package.ExpenseTracker.config;
 
 import com.Package.ExpenseTracker.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,6 +39,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                )
+                // Return 401 instead of 403 for unauthenticated requests
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(
+                                    "{\"error\": \"Unauthorized\", \"message\": \"Please login first\"}"
+                            );
+                        })
                 )
                 .authorizeHttpRequests(auth -> auth
                         // Public - auth endpoints

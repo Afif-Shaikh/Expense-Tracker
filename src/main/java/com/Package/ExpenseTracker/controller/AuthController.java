@@ -4,7 +4,7 @@ import com.Package.ExpenseTracker.dto.AuthResponse;
 import com.Package.ExpenseTracker.dto.LoginRequest;
 import com.Package.ExpenseTracker.dto.RegisterRequest;
 import com.Package.ExpenseTracker.model.User;
-import com.Package.ExpenseTracker.service.UserService;
+import com.Package.ExpenseTracker.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
